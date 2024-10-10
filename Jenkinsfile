@@ -1,7 +1,22 @@
 pipeline {
     agent {
-        label 'agent02'
+        label 'agent01'
     }
+
+    tools {
+        maven 'mymaven'
+    }
+
+    environment {
+        build = "maven"
+        team = "devops"
+    }
+
+    parameters {
+        string defaultValue: 'thank your for choosing us', name: 'message', trim: true
+    }
+
+
     stages {
         stage('build') {
             steps {
@@ -12,7 +27,7 @@ pipeline {
             post {
                 success {
                     dir("$WORKSPACE"){
-                        archiveArtifacts artifacts: "target/my-app-1.0-SNAPSHOT.jar"
+                        archiveArtifacts artifacts: "target/*.jar"
                     }
                 }
             }
@@ -33,6 +48,25 @@ pipeline {
             steps {
                 echo "Deploying Jar package"
                 sh 'java -jar $WORKSPACE/target/my-app-1.0-SNAPSHOT.jar'
+                echo "###########################"
+                echo "$build is sucessfully deployed by $team"
+                echo "###########################"
+                echo "${params.message}"
+            }
+        }
+
+        stage('Parallel Stage') {
+            parallel {
+                stage('stage A') {
+                    steps {
+                        echo "Parallel run on stage A"
+                    }
+                }
+                stage('stage B') {
+                    steps {
+                        echo "Parallel run on stage B"
+                    }
+                }
             }
         }
     }
