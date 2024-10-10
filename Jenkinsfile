@@ -38,6 +38,7 @@ pipeline {
                         archiveArtifacts artifacts: "target/*.jar"
                     }
                 }
+
             }
         }
         stage('test_dev') {
@@ -95,6 +96,9 @@ pipeline {
                     dir("$WORKSPACE"){
                         archiveArtifacts artifacts: "target/*.jar"
                     }
+                    dir("$WORKSPACE/target"){
+                        stash includes: '*.jar', name: 'ProdArtifactsFiles'
+                    }
                 }
             }
         }
@@ -142,6 +146,9 @@ pipeline {
                         label "agent01"
                     }
                     steps {
+                        dir("$WORKSPACE/target/surefire-reports"){
+                            stash includes: '*', name: 'DevTestFiles'
+                        }
                         echo "Parallel run on agent 01"
                     }
                 }
@@ -150,6 +157,10 @@ pipeline {
                         label "agent02"
                     }
                     steps {
+                        dir("/tmp"){
+                            unstash 'DevTestFiles'
+                            echo "test files from development server of stash cache is saved into /tmp folder"
+                        }
                         echo "Parallel run on agent 02"
                     }
                 }
