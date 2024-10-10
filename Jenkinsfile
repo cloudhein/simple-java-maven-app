@@ -122,7 +122,10 @@ pipeline {
             }
         }
         stage('Deploy_prod') {
-             when { 
+            input {
+                message 'approved to deployed in production server?'
+            }
+            when { 
                 expression { params.select_your_env == 'production' }
                 beforeAgent true
             }
