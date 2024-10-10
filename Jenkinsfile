@@ -5,14 +5,23 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh "cd '$WORKSPACE'"
-                sh 'mvn -B -DskipTests clean package'
+                dir("$WORKSPACE"){
+                    sh 'mvn -B -DskipTests clean package'
+                }
+            }
+            post {
+                success {
+                    dir("$WORKSPACE"){
+                        archiveArtifacts artifacts: "target/my-app-1.0-SNAPSHOT.jar"
+                    }
+                }
             }
         }
         stage('test') {
             steps {
-                sh "cd '$WORKSPACE'"
-                sh 'mvn test'
+                dir("$WORKSPACE"){
+                    sh 'mvn test'
+                }
             }
             post {
                 success {
